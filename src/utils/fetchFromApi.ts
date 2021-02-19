@@ -23,8 +23,8 @@ const fetchDecorator = async (req: Request) => {
     const data = await json.json();
     return data;
   } catch (err) {
-    // console.log('Error fetching: ', err)
-    throw Error(err.message);
+    console.warn('Error fetching: ', err)
+    throw err;
   }
 };
 

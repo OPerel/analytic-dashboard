@@ -14,12 +14,14 @@ const App: React.FC = () => {
     Auth.isAuth().then(isAuth => setIsAuth(isAuth));
     Auth.getAuthState(auth => {
       setIsAuth(auth.isAuthenticated)
-    })
+    });
+
+    return () => Auth.unsubscribe();
   }, [isAuth]);
 
   // console.log('App isAuth: ', isAuth)
   
-  return isAuth ? (
+  return !isAuth ? (
     <Login />
   ) : (
     <Dashboard />

@@ -7,7 +7,7 @@ class OktaAuthService {
     this.authClient = new OktaAuth({
       issuer: `${process.env.REACT_APP_OKTA_DOMAIN}/oauth2/default`,
       clientId: process.env.REACT_APP_OKTA_CLIENT_ID,
-      redirectUri: process.env.REACT_APP_REDIRECT_URI
+      redirectUri: `${process.env.REACT_APP_REDIRECT_URI}`
     })
   }
 

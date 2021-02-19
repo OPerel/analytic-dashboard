@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import DataStateProvider, { useDataContext, DataActionTypes } from '../../context/dataContext';
 import fetchDecorator from '../../utils/fetchFromApi';
+import Auth from '../../utils/oktaAuth';
 
 const Dashboard: React.FC = () => {
-  const [users, setUsers] = useState<any>([]);
-  const [pageHits, setPageHits] = useState<any>([]);
-  const [pageHitsByDay, setPageHitsByDay] = useState<any>([]);
-  const [uniqueUsersByDay, setUniqueUsersByDay] = useState<any>([]);
+
+  const { state, dispatch } = useDataContext();
+  const {
+    loading,
+    error,
+    users,
+    pageHits,
+    pageHitsByDay,
+    uniqueUsersByDay
+  } = state;
 
   const bars = {
     series: [{
@@ -101,77 +109,84 @@ const Dashboard: React.FC = () => {
     },
   };
 
+  const usersReq = new Request(`${process.env.REACT_APP_API}/users`);
+  const pageHitsReq = new Request(`${process.env.REACT_APP_API}/pageHits`);
+  const usersByDayReq = new Request(`${process.env.REACT_APP_API}/uniqueUsersByDay`);
+  const pageHitsByDayReq = new Request(`${process.env.REACT_APP_API}/pageHitsByDay`);
+
   useEffect(() => {
-    const req = new Request(`${process.env.REACT_APP_API}/users`);
-    fetchDecorator(req)
-      // .then(res => res.json())
-      .then(res => setUsers(res))
-      .catch(err => console.warn('error fetching users: ', err));
+    dispatch({ type: DataActionTypes.FETCH });
+    fetchDecorator(usersReq)
+      .then(res => dispatch({ type: DataActionTypes.SET_USERS, payload: res }))
+      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
 
-    fetch(`${process.env.REACT_APP_API}/pageHits`)
-      .then(res => {console.log('users res: ', res); res.json()})
-      .then(res => setPageHits(res))
-      .catch(err => console.warn('error fetching pageHits: ', err));
+    dispatch({ type: DataActionTypes.FETCH });
+    fetchDecorator(pageHitsReq)
+      .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS, payload: res }))
+      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
 
-    fetch(`${process.env.REACT_APP_API}/pageHitsByDay`)
-      .then(res => res.json())
-      .then(res => setPageHitsByDay(res))
-      .catch(err => console.warn('error fetching pageHitsByDay: ', err));
+    fetchDecorator(usersByDayReq)
+      .then(res => dispatch({ type: DataActionTypes.SET_USERS_BY_DAY, payload: res }))
+      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
 
-    fetch(`${process.env.REACT_APP_API}/uniqueUsersByDay`)
-      .then(res => res.json())
-      .then(res => setUniqueUsersByDay(res))
-      .catch(err => console.warn('error fetching uniqueUsersByDay: ', err));
+    fetchDecorator(pageHitsByDayReq)
+      .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_DAY, payload: res }))
+      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
   }, []);
   
-  console.log('users: ', users);
+  console.log('state: ', state);
 
   return (
     <div>
       <header>
         <h2>My Stats</h2>
+        <button onClick={() => Auth.logout()}>Log Out</button>
       </header>
-      <main>
+      {error ? (
+        <h2>{error}</h2>
+      ) : loading ? (
+        <h2>Loading...</h2>
+      ) : (
+        <main>
+          <ReactApexChart options={bars.options} series={bars.series} type="bar" height={150} />
+          <ReactApexChart options={plot.options} series={plot.series} type="line" height={350} />
 
-        <ReactApexChart options={bars.options} series={bars.series} type="bar" height={150} />
-        <ReactApexChart options={plot.options} series={plot.series} type="line" height={350} />
-
-        <div>
-          {users.map((user: any) => (
-            <div>
-              <h3>
-                <span>User ID: {user._id}</span>
-                <span>User Created At: {new Date(user.createdAt).toLocaleString()}</span>
-              </h3>
-              <table key={user._id}>
-                <thead>
-                  <tr>
-                    <th>Created At</th>
-                    <th>Country</th>
-                    <th>City</th>
-                    <th>Referrer</th>
-                    <th>IP Address</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageHits.filter((page: any) => page.userId === user._id).map((p: any) => (
-                    <tr key={p._id}>
-                      <td>{new Date(p.createdAt).toLocaleString()}</td>
-                      <td>{p.country}</td>
-                      <td>{p.city}</td>
-                      <td>{p.referrer || 'None'}</td>
-                      <td>{p.IP}</td>
+          <div>
+            {users.map((user: any) => (
+              <div key={user._id}>
+                <h3>
+                  <span>User ID: {user._id}</span>
+                  <span>User Created At: {new Date(user.createdAt).toLocaleString()}</span>
+                </h3>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Created At</th>
+                      <th>Country</th>
+                      <th>City</th>
+                      <th>Referrer</th>
+                      <th>IP Address</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-        </div>
-
-      </main>
+                  </thead>
+                  <tbody>
+                    {pageHits.filter((page: any) => page.userId === user._id).map((p: any) => (
+                      <tr key={p._id}>
+                        <td>{new Date(p.createdAt).toLocaleString()}</td>
+                        <td>{p.country}</td>
+                        <td>{p.city}</td>
+                        <td>{p.referrer || 'None'}</td>
+                        <td>{p.IP}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
     </div>
   );
 }
 
-export default Dashboard;
+export default DataStateProvider(Dashboard);

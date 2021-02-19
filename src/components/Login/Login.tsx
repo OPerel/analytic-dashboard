@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import Auth from '../../utils/oktaAuth';
 
 interface LoginForm {
   email: string,
@@ -14,12 +15,23 @@ const Login: React.FC = () => {
   
   const [login, setLogin] = useState<LoginForm>(initialLoginState);
   
-  const handleLogin = () => {}
+  const handleLogin = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    Auth.login(login.email, login.password);
+  }
+
+  useEffect(() => {
+    document.getElementById('form')?.addEventListener('keypress', e => {
+      if (e.key === 'enter' && login.password && login.password) {
+        handleLogin();
+      }
+    });
+  }, [])
 
   return (
     <div>
       <form>
-        
+
         <div>
           <label>Email</label>
           <input
@@ -40,7 +52,7 @@ const Login: React.FC = () => {
           />
         </div>
 
-        <button onClick={handleLogin}>Login</button>
+        <button onClick={e => handleLogin(e)}>Login</button>
 
       </form>
     </div>
