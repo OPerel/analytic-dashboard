@@ -12,32 +12,35 @@ header h2 {
   margin: 0;
 }
 
+button {
+  padding: 0.3% 1.5%;
+  color: #a9c3c5;
+  background-color: darkcyan;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 1px 2px 2px 2px #a9a9a96e;
+  transition: 0.2s;
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 1px 2px 2px 0.5px #a9a9a96e;
+}
+
+button:focus {
+  outline: none;
+}
+
 main {
   width: 90vw;
   margin: 0 auto;
-  /* background-color: #f5f5dc; */
-  /* height: 87.5vh; */
   padding: 2%;
-  /* overflow: hidden; */
 }
 
-h3 {
+h4 {
   padding: 0.3% 0 0.3% 2%;
   background-color: #c3beae;
 }
-
-/* main p {
-  padding: .5% 1%;
-  background-color: #5f9ea0;
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-  box-shadow: 3px 3px 5px 0px #1c2c2c6e;
-  transition: .3s
-}
-
-main p:hover {
-  box-shadow: 3px 3px 5px 1.5px #1c2c2c6e;
-} */
 
 table {
   width: 100%;
@@ -54,10 +57,15 @@ tr {
 }
 
 tbody tr:hover {
-  background-color: #bbd4ff;
+  background-color: #ced5e1;
 }
 
 td {
   width: 20%;
   text-align: center;
+}
+
+td img {
+  vertical-align: middle;
+  padding: 0 6%;
 }

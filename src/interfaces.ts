@@ -1,7 +1,7 @@
-export interface User {
-  _id: string,
-  createdAt: Date
-}
+// export interface User {
+//   _id: string,
+//   createdAt: Date
+// }
 
 export interface PageHit {
   _id: string,
@@ -13,4 +13,15 @@ export interface PageHit {
   flagSVG: string,
   createdAt: Date,
   IP: string 
+}
+
+export interface ByDayAggregation {
+  _id: string,
+  count: number
+}
+
+export interface PageHitByUser {
+  _id: { user: string },
+  pageHitsCount: number,
+  pageHits: PageHit[]
 }

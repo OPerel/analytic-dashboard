@@ -1,25 +1,24 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactApexChart from 'react-apexcharts';
-import DataStateProvider, { useDataContext, DataActionTypes } from '../../context/dataContext';
-import fetchDecorator from '../../utils/fetchFromApi';
+import DataStateProvider, { useDataContext } from '../../context/dataContext';
 import Auth from '../../utils/oktaAuth';
 
 const Dashboard: React.FC = () => {
 
-  const { state, dispatch } = useDataContext();
   const {
     loading,
     error,
-    users,
-    pageHits,
+    usersCount,
+    pageHitsCount,
     pageHitsByDay,
-    uniqueUsersByDay
-  } = state;
+    uniqueUsersByDay,
+    pageHitsByUser
+  } = useDataContext().state;
 
   const bars = {
     series: [{
       name: 'Users and Page hits',
-      data: [users.length, pageHits.length]
+      data: [usersCount, pageHitsCount]
     }],
     options: {
       chart: {
@@ -109,33 +108,7 @@ const Dashboard: React.FC = () => {
     },
   };
 
-  const usersReq = new Request(`${process.env.REACT_APP_API}/users`);
-  const pageHitsReq = new Request(`${process.env.REACT_APP_API}/pageHits`);
-  const usersByDayReq = new Request(`${process.env.REACT_APP_API}/uniqueUsersByDay`);
-  const pageHitsByDayReq = new Request(`${process.env.REACT_APP_API}/pageHitsByDay`);
-
-  useEffect(() => {
-    dispatch({ type: DataActionTypes.FETCH });
-    fetchDecorator(usersReq)
-      .then(res => dispatch({ type: DataActionTypes.SET_USERS, payload: res }))
-      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
-
-    dispatch({ type: DataActionTypes.FETCH });
-    fetchDecorator(pageHitsReq)
-      .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS, payload: res }))
-      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
-
-    fetchDecorator(usersByDayReq)
-      .then(res => dispatch({ type: DataActionTypes.SET_USERS_BY_DAY, payload: res }))
-      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
-
-    fetchDecorator(pageHitsByDayReq)
-      .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_DAY, payload: res }))
-      .catch(err => dispatch({ type: DataActionTypes.SET_ERROR, payload: err }));
-  }, []);
-  
-  console.log('state: ', state);
-
+  console.log('pageHitsByDay: ', pageHitsByDay)
   return (
     <div>
       <header>
@@ -152,12 +125,16 @@ const Dashboard: React.FC = () => {
           <ReactApexChart options={plot.options} series={plot.series} type="line" height={350} />
 
           <div>
-            {users.map((user: any) => (
-              <div key={user._id}>
-                <h3>
-                  <span>User ID: {user._id}</span>
-                  <span>User Created At: {new Date(user.createdAt).toLocaleString()}</span>
-                </h3>
+            <h3>Page Hits By User</h3>
+            <h5>* Number of users without pageHits: {usersCount - pageHitsByUser.length}</h5>
+            {pageHitsByUser.map((user, idx: number) => (
+              <div key={user._id.user}>
+                <h4>
+                  <span>{idx + 1} - </span>
+                  <span>User ID: {user._id.user},</span>
+                  &nbsp;
+                  <span>Number of visits: {user.pageHitsCount}</span>
+                </h4>
                 <table>
                   <thead>
                     <tr>
@@ -169,10 +146,20 @@ const Dashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {pageHits.filter((page: any) => page.userId === user._id).map((p: any) => (
+                    {user.pageHits.map((p) => (
                       <tr key={p._id}>
                         <td>{new Date(p.createdAt).toLocaleString()}</td>
-                        <td>{p.country}</td>
+                        <td>
+                          {p.country}
+                          {p.flagSVG && (
+                            <img
+                              src={p.flagSVG}
+                              alt="country flag"
+                              width="30px"
+                              height="17px"
+                            />
+                          )}
+                        </td>
                         <td>{p.city}</td>
                         <td>{p.referrer || 'None'}</td>
                         <td>{p.IP}</td>

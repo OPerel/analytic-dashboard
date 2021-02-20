@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Login from './components/Login/Login';
 import Dashboard from './components/Dashboard/Dashboard';
-
 import Auth from './utils/oktaAuth';
-
-import './App.css';
+import './AllAppStyles.css';
 
 const App: React.FC = () => {
 
@@ -18,8 +16,6 @@ const App: React.FC = () => {
 
     return () => Auth.unsubscribe();
   }, [isAuth]);
-
-  // console.log('App isAuth: ', isAuth)
   
   return !isAuth ? (
     <Login />
