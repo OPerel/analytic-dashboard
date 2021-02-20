@@ -108,7 +108,6 @@ const Dashboard: React.FC = () => {
     },
   };
 
-  console.log('pageHitsByDay: ', pageHitsByDay)
   return (
     <div>
       <header>

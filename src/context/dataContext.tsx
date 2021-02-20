@@ -75,11 +75,35 @@ const DataContext = createContext<DataPropsTypes>({
 });
 export const useDataContext = () => useContext(DataContext);
 
-const usersReq = new Request(`${process.env.REACT_APP_API}/usersCount`);
-const pageHitsReq = new Request(`${process.env.REACT_APP_API}/pageHitsCount`);
+const usersCountReq = new Request(`${process.env.REACT_APP_API}/usersCount`);
+const pageHitsCountReq = new Request(`${process.env.REACT_APP_API}/pageHitsCount`);
 const usersByDayReq = new Request(`${process.env.REACT_APP_API}/uniqueUsersByDay`);
 const pageHitsByDayReq = new Request(`${process.env.REACT_APP_API}/pageHitsByDay`);
 const pageHitsByUserReq = new Request(`${process.env.REACT_APP_API}/pageHitsByUser`);
+
+const fetchAllData = (): Promise<any> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const usersCount = await fetchDecorator(usersCountReq);
+      const pageHitsCount = await fetchDecorator(pageHitsCountReq);
+      const usersByDay = await fetchDecorator(usersByDayReq);
+      const pageHitsByDay = await fetchDecorator(pageHitsByDayReq);
+      const pageHitsByUser = await fetchDecorator(pageHitsByUserReq);
+
+      const allData = await Promise.all([
+        usersCount,
+        pageHitsCount,
+        usersByDay,
+        pageHitsByDay,
+        pageHitsByUser
+      ]);
+
+      resolve(allData)
+    } catch (err) {
+      reject(err);
+    }
+  })
+}
 
 // Provider HOC
 const DataStateProvider = <P extends {}>(Component: React.ComponentType<P>): React.FC<P> => {
@@ -87,41 +111,17 @@ const DataStateProvider = <P extends {}>(Component: React.ComponentType<P>): Rea
     const [state, dispatch] = useReducer(reducer, dataInitialState);
     useEffect(() => {
       dispatch({ type: DataActionTypes.FETCH });
-      fetchDecorator(usersReq)
-        .then(res => dispatch({ type: DataActionTypes.SET_USERS_COUNT, payload: res }))
-        .catch(err => dispatch({
-          type: DataActionTypes.SET_ERROR,
-          payload: `Error fetching usersReq: ${err}`
-        }));
-
-      fetchDecorator(pageHitsReq)
-        .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS_COUNT, payload: res }))
-        .catch(err => dispatch({
-          type: DataActionTypes.SET_ERROR,
-          payload: `Error fetching pageHitsReq: ${err}`
-        }));
-
-      fetchDecorator(usersByDayReq)
-        .then(res => dispatch({ type: DataActionTypes.SET_USERS_BY_DAY, payload: res }))
-        .catch(err => dispatch({
-          type: DataActionTypes.SET_ERROR,
-          payload: `Error fetching usersByDayReq: ${err}`
-        }));
-
-      fetchDecorator(pageHitsByDayReq)
-        .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_DAY, payload: res }))
-        .catch(err => dispatch({
-          type: DataActionTypes.SET_ERROR,
-          payload: `Error fetching pageHitsByDayReq: ${err}`
-        }));
-
-        fetchDecorator(pageHitsByUserReq)
-        .then(res => dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_USER, payload: res }))
-        .catch(err => dispatch({
-          type: DataActionTypes.SET_ERROR,
-          payload: `Error fetching pageHitsByUserReq: ${err}`
-        }));
-
+      fetchAllData()
+        .then(res => {
+          dispatch({ type: DataActionTypes.SET_USERS_COUNT, payload: res[0] });
+          dispatch({ type: DataActionTypes.SET_PAGE_HITS_COUNT, payload: res[1] });
+          dispatch({ type: DataActionTypes.SET_USERS_BY_DAY, payload: res[2] });
+          dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_DAY, payload: res[3] });
+          dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_USER, payload: res[4] });
+        })
+        .catch(err => {
+          dispatch({ type: DataActionTypes.SET_ERROR, payload: err })
+        });
     }, [])
     return (
       <DataContext.Provider value={{ state, dispatch }}>
