@@ -22,10 +22,11 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     document.getElementById('form')?.addEventListener('keypress', e => {
-      if (e.key === 'enter' && login.password && login.password) {
+      if (e.key === 'enter' && login.password && login.email) {
         handleLogin();
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
