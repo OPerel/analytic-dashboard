@@ -117,7 +117,6 @@ const Dashboard: React.FC = () => {
     },
   };
 
-  console.log('render!!!!!!!!!!!!!!!!!!!!')
   return (
     <div>
       <header>
