@@ -11,17 +11,19 @@ export interface PageHit {
   country: string,
   city: string,
   flagSVG: string,
-  createdAt: Date,
+  createdAt: string,
   IP: string 
 }
 
 export interface ByDayAggregation {
   _id: string,
-  count: number
+  count: number,
+  date: string
 }
 
 export interface PageHitByUser {
   _id: { user: string },
   pageHitsCount: number,
+  firstHit: string,
   pageHits: PageHit[]
 }

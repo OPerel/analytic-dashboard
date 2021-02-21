@@ -120,7 +120,7 @@ const DataStateProvider = <P extends {}>(Component: React.ComponentType<P>): Rea
           dispatch({ type: DataActionTypes.SET_PAGE_HITS_BY_USER, payload: res[4] });
         })
         .catch(err => {
-          dispatch({ type: DataActionTypes.SET_ERROR, payload: err })
+          dispatch({ type: DataActionTypes.SET_ERROR, payload: err.message })
         });
     }, [])
     return (

@@ -15,6 +15,15 @@ const Dashboard: React.FC = () => {
     pageHitsByUser
   } = useDataContext().state;
 
+  const pageHitsPlotData = pageHitsByDay.map(day => [day.date, day.count]);
+  const uniqueUsersPlotData = uniqueUsersByDay.map(day => [day.date, day.count]);
+
+  // console.log('uniqueUsersByDay: ', uniqueUsersByDay);
+  // console.log('pageHitsByDay: ', pageHitsByDay);
+  // console.log('pageHitsPlotData: ', pageHitsPlotData)
+  // console.log('uniqueUsersPlotData: ', uniqueUsersPlotData)
+  // console.log('pageHitsByUser: ', pageHitsByUser)
+
   const bars = {
     series: [{
       name: 'Users and Page hits',
@@ -46,11 +55,11 @@ const Dashboard: React.FC = () => {
     series: [
       {
         name: 'Page Hits by Day',
-        data: pageHitsByDay.map((day: any) => [day._id, day.count])
+        data: pageHitsPlotData
       },
       {
         name: 'Unique Users By Day',
-        data: uniqueUsersByDay.map((day: any) => [day._id, day.count])
+        data: uniqueUsersPlotData
       }
     ],
     options: {
@@ -108,6 +117,7 @@ const Dashboard: React.FC = () => {
     },
   };
 
+  console.log('render!!!!!!!!!!!!!!!!!!!!')
   return (
     <div>
       <header>
@@ -132,6 +142,8 @@ const Dashboard: React.FC = () => {
                   <span>{idx + 1} - </span>
                   <span>User ID: {user._id.user},</span>
                   &nbsp;
+                  <span>Created: {new Date(user.firstHit).toLocaleString('he', { timeZone: 'UTC' })}, </span>
+                  &nbsp;
                   <span>Number of visits: {user.pageHitsCount}</span>
                 </h4>
                 <table>
@@ -147,7 +159,7 @@ const Dashboard: React.FC = () => {
                   <tbody>
                     {user.pageHits.map((p) => (
                       <tr key={p._id}>
-                        <td>{new Date(p.createdAt).toLocaleString()}</td>
+                        <td>{new Date(p.createdAt).toLocaleString('he', { timeZone: 'UTC' })}</td>
                         <td>
                           {p.country}
                           {p.flagSVG && (
