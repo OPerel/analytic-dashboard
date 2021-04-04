@@ -42,6 +42,11 @@ h4 {
   background-color: #c3beae;
 }
 
+.tables-header {
+  color: inherit;
+  background-color: inherit;
+}
+
 table {
   width: 100%;
   margin: 0 auto;

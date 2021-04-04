@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import DataStateProvider, { useDataContext } from '../../context/dataContext';
 import Auth from '../../utils/oktaAuth';
+import { PageHitByUser } from '../../interfaces';
 
 const Dashboard: React.FC = () => {
+
+  const [botFilter, setBotFilter] = useState<boolean>(false);
 
   const {
     loading,
@@ -117,6 +120,13 @@ const Dashboard: React.FC = () => {
     },
   };
 
+  const filterGoogleBots = (pageHitsByUser: PageHitByUser[]) => {
+    return pageHitsByUser.filter(phu => !phu.pageHits[0].IP.includes('66.249'));
+  }
+
+  const filteredPageHitsByUser = 
+    botFilter ? filterGoogleBots(pageHitsByUser) : pageHitsByUser;
+
   return (
     <div>
       <header>
@@ -133,9 +143,15 @@ const Dashboard: React.FC = () => {
           <ReactApexChart options={plot.options} series={plot.series} type="line" height={350} />
 
           <div>
-            <h3>Page Hits By User</h3>
+            <header className="tables-header">
+              <h3>Page Hits By User</h3>
+
+              <button onClick={() => setBotFilter(!botFilter)}>
+                {botFilter ? 'Show' : 'Filter'} Google Bots
+              </button>
+            </header>
             <h5>* Number of users without pageHits: {usersCount - pageHitsByUser.length}</h5>
-            {pageHitsByUser.map((user, idx: number) => (
+            {filteredPageHitsByUser.map((user, idx: number) => (
               <div key={user._id.user}>
                 <h4>
                   <span>{idx + 1} - </span>
